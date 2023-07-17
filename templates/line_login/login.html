@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LINE Messenger Login</title>
+</head>
+<body>
+    <h1>LINE Messenger Login</h1>
+    <button onclick="loginWithLINE()">Login with LINE</button>
+
+    <script>
+        function generateRandomState(length) {
+            let state = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+    
+            for (let i = 0; i < length; i++) {
+                state += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+    
+            return state;
+        }
+    
+        function loginWithLINE() {
+            const channelId = '{{ channel_id }}';  // Access the channel_id variable
+            const redirectUri = encodeURIComponent('http://127.0.0.1:8000/line-login/');
+            const state = generateRandomState(10);  // Generate a random state value with a length of 10 characters
+    
+            const url = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${channelId}&redirect_uri=${redirectUri}&scope=profile%20openid&state=${state}`;
+    
+            window.location.href = url;
+        }
+    </script>
+    
+</body>
+</html>

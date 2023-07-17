@@ -1,0 +1,7 @@
+<!-- line_login/login.html -->
+<form method="POST" action="{% url 'login' %}">
+    {% csrf_token %}
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <button type="submit">Log in with Line</button>
+  </form>
+  
