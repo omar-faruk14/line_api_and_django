@@ -1,44 +1,26 @@
-import json
-import requests
-from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from linebot import WebhookHandler
+from linebot.exceptions import InvalidSignatureError
+from linebot.models import MessageEvent, TextMessage, TextSendMessage
+
+# Replace 'YOUR_CHANNEL_SECRET' with your actual channel secret
+handler = WebhookHandler('f8f64fa9513dbfc006d0c1e44548305b')
 
 @csrf_exempt
 def line_webhook(request):
     if request.method == 'POST':
-        body = json.loads(request.body.decode('utf-8'))
-        events = body['events']
-        for event in events:
-            if event['type'] == 'message' and event['message']['type'] == 'text':
-                reply_token = event['replyToken']
-                message = event['message']['text']
-                send_reply_message(reply_token, message)
+        signature = request.headers['X-Line-Signature']
+        body = request.body.decode('utf-8')
+
+        try:
+            handler.handle(body, signature)
+        except InvalidSignatureError:
+            return HttpResponse(status=400)
 
         return HttpResponse(status=200)
+    elif request.method == 'GET':  # Handle GET requests for webhook verification
+        return HttpResponse("Hello, this is your LINE bot webhook.")
     else:
         return HttpResponse(status=405)
-
-def send_reply_message(reply_token, message):
-    reply_url = 'https://api.line.me/v2/bot/message/reply'
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer 0Py5K/6Cgg4BenRkERBjSbEjoNvPF/QkCdQs1UM4GFwlqy1TOLTbnnE45U07s9Ym/MrEORTmKal6dqx5cNZXiIxzIeMIyVWiSLfTq3XEqkmFsKnLlF52VFC+56R/BbXsmfKXEenH7TmiFWHRMcEpIQdB04t89/1O/w1cDnyilFU=',
-    }
-    data = {
-        'replyToken': reply_token,
-        'messages': [
-            {
-                'type': 'text',
-                'text': message,
-            },
-        ],
-    }
-    response = requests.post(reply_url, headers=headers, json=data)
-    if response.status_code != 200:
-        print(f"Failed to send reply message. Status code: {response.status_code}")
-
-
-
-
-
 

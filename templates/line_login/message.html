@@ -1,0 +1,41 @@
+<!-- templates/message.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Line Bot Communication</title>
+</head>
+<body>
+    <form onsubmit="sendMessage(event)">
+        {% csrf_token %}
+        <label for="message">Enter your message:</label>
+        <input type="text" id="message" name="message">
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        function sendMessage(event) {
+            event.preventDefault(); // Prevent form submission
+
+            const message = document.getElementById('message').value;
+            const csrfToken = '{{ csrf_token }}';
+
+            fetch("{% url 'line_webhook' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    'message': message
+                })
+            }).then((response) => {
+                // Handle the response as needed
+                console.log(response);
+            }).catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+
